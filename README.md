@@ -19,8 +19,9 @@ https://tech.yandex.ru/speechkit/cloud/
 http://docs.python-requests.org/
 - python uuid
 - python xml get value
+- python requests dowload file
+- python check file exist
 -
-
 
 
 ----------------

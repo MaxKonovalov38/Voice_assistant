@@ -1,9 +1,12 @@
-# импортируем модули
-import pyaudio
+# Импортируем модули
+import os
 import wave
+from array import array
+
+import pyaudio
 import requests
 from bs4 import BeautifulSoup as bs
-from array import array
+
 
 # Константы:
 CHUNK = 1024
@@ -106,11 +109,34 @@ def speech_to_text(filename='speech.wav'):
 	soup = bs(result.text, 'html.parser')
 	return soup.variant.string
 
+# Функция генерирования речи из теска:
+def text_to_speech(text, emotion='neutral'):
+	filename = 'wavs/{}.wav'.format(text.lower())
+	if os.path.isfile(filename):
+		play_audio(filename)
+		return
+	response = requests.get('https://tts.voicetech.yandex.net/generate',
+		params={
+		    'key': SPEECHKIT_API_KEY,
+		    'text': text,
+		    'format': 'wav',
+		    'quality': 'hi',
+		    'lang': 'ru-RU',
+		    'speaker': 'oksana',
+		    'emotion': emotion,
+		}
+	)
+	if response.status_code == 200:
+		with open(filename, 'wb') as f:
+			f.write(response.content)
+
+	play_audio(filename)
 
 #
 def main():
 	record_audio()
-	speech_to_text()
+	text = speech_to_text()
+	text_to_speech(text)
 	#sleep()
 	#play_audio()
 

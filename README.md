@@ -10,7 +10,17 @@
 
 ## Поиски решений:
 - python record audio
-- 
+- Yandex SpeechKit:
+https://tech.yandex.ru/speechkit/cloud/
+- python http post request
+- python http post request send file
+- python post request file chunked
+- requests:
+http://docs.python-requests.org/
+- python uuid
+- python xml get value
+-
+
 
 
 ----------------

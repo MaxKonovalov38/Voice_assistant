@@ -1,6 +1,9 @@
 # импортируем модули
 import pyaudio
 import wave
+import requests
+from bs4 import BeautifulSoup as bs
+from array import array
 
 # Константы:
 CHUNK = 1024
@@ -9,6 +12,9 @@ CHANNELS = 2
 RATE = 44100
 RECORD_SECONDS = 20
 #WAVE_OUTPUT_FILENAME = "output.wav"  # !!!
+
+USER_UUID = '86d656bbe650498592cbe2b0007c3ea8'
+SPEECHKIT_API_KEY = 'KEY'
 
 # Функция записи:
 def record_audio(filename='speech.wav'):
@@ -23,9 +29,20 @@ def record_audio(filename='speech.wav'):
 
     frames = []
 
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-	    data = stream.read(CHUNK)
+    silent_seconds = 0
+    while silent_seconds < 3:
+    	data = stream.read(CHUNK)
 	    frames.append(data)
+
+	    as_ints = array('h', data)
+	    max_value = max(as_ints)
+
+	    #print(max_value)
+	    if max_value > 500:
+	    	silent_seconds = 0
+	    else:
+	    	silent_seconds += CHUNK / RATE
+	    #print(silent_seconds)
 
     print("* done recording")
 
@@ -62,11 +79,40 @@ def play_audio(filename='speech.wav'):
 
 	p.terminate()
 
+# Функция отправки и обработки текста:
+def speech_to_text(filename='speech.wav'):
+	def read_in_chunks(file_object, blocksize=1024, chunks=-1):
+		# Lazy function (generator) to read a file piece by piece.
+		# Default chunk size: 1k.
+		while chunks:
+			data = file_object.read(blocksize)
+			if not data:
+				break
+			yield data
+			chunks -= 1
+
+	result = requests.post(
+		'https://asr.yandex.net/asr_xml',
+		params={
+		    'uuid': USER_UUID,
+		    'key': SPEECHKIT_API_KEY,
+		    'topic' : 'queries',
+		},
+		headers={
+		    'Content-Type': 'audio/x-wav'
+		},
+		data=read_in_chunks(open(filename, 'rb'))
+	)
+	soup = bs(result.text, 'html.parser')
+	return soup.variant.string
+
+
 #
 def main():
 	record_audio()
+	speech_to_text()
 	#sleep()
-	play_audio()
+	#play_audio()
 
 if __name__ == 'main':
 	main()

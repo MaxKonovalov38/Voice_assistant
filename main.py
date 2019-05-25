@@ -2,6 +2,7 @@
 import os
 import wave
 from array import array
+from datetime import datetime
 
 import pyaudio
 import requests
@@ -134,11 +135,33 @@ def text_to_speech(text, emotion='neutral'):
 
 #
 def main():
-	record_audio()
-	text = speech_to_text()
-	text_to_speech(text)
-	#sleep()
-	#play_audio()
+	text_to_speech('Привет!', 'good')
+	while True:
+		record_audio()
+        text = speech_to_text()
+
+        if text == 'привет':
+        	text_to_speech('Как дела?', 'good')
+        elif text in ['неплохо', 'хорошо', 'замечательно']:
+        	text_to_speech('Здорово! У меня тоже.', 'good')
+        elif text == 'сколько время':
+        	text_to_speech('Правильно говорить который час', 'bad')
+        elif text == 'который час':
+        	text_to_speech('Сейчас {}'.format(datetime.now().strftime('%H:%M')))
+        elif text == 'спасибо':
+        	text_to_speech('Обращайся!', 'good')
+        	break
+        elif text.startswith('сколько будет'):
+        	expr = text\
+        	    .replace('сколько будет', '')\
+        	    .replace('плюс', '+')\
+        	    .replace('минус', '-')\
+        	    .replace('умножить на', '*')\
+        	    .replace('делить на', '/')
+        	calc = str(eval(expr))
+        	text_to_speech(calc)
+        else:
+        	text_to_speech('непонятно!!!', 'bad')
 
 if __name__ == 'main':
 	main()

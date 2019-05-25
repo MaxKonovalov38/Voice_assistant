@@ -21,6 +21,7 @@ http://docs.python-requests.org/
 - python xml get value
 - python requests dowload file
 - python check file exist
+- python get current time
 -
 
 
